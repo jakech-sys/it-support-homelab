@@ -25,6 +25,17 @@ The client displayed an error indicating that an Active Directory Domain Control
 
 Domain-joining diagnostics also returned error `1355` (`ERROR_NO_SUCH_DOMAIN`).
 
+## Quick diagnostic path
+
+1. **DC / CMD:** identify the current DC IP; do not assume historical addresses still apply.
+2. **Client / CMD:** check IP, ping, and direct DNS SRV queries against the DC.
+3. **Client / PowerShell:** compare default DNS resolution with explicit DC DNS resolution and inspect both IPv4 and IPv6 DNS servers.
+4. **Client:** check domain discovery, TCP service connectivity, and the join log before changing adapter settings.
+5. **Client / PowerShell as Administrator:** if justified, perform the temporary IPv6 isolation test; restore IPv6 and repeat discovery tests afterward.
+6. **Client / CMD:** verify actual domain logon with `whoami`.
+
+The original incident was consistent with competing DNS servers; the precise resolver-selection mechanism was not independently established. Do not interpret a working workaround as proof that IPv6 itself is faulty.
+
 ## Troubleshooting Procedure
 
 ### Step 1 — Check the Domain Controller's network configuration
@@ -124,7 +135,19 @@ Compare a direct lookup against the DC with a lookup using the client's default 
 Resolve-DnsName -Name "_ldap._tcp.dc._msdcs.jobskillshare.org" -Type SRV
 ```
 
-### Step 8 — Temporary workaround used in the original incident
+### Step 8 — Inspect the domain-joining log
+
+**Machine:** Affected Windows client
+
+**Terminal:** PowerShell, run as Administrator
+
+```powershell
+Get-Content "C:\Windows\debug\NetSetup.log" -Tail 60
+```
+
+Look for the most recent domain-joining attempt and any relevant error codes.
+
+### Step 9 — Temporary workaround used in the original incident
 
 **Machine:** Affected Windows client only
 
@@ -144,19 +167,16 @@ After testing, restore the adapter binding:
 Enable-NetAdapterBinding -Name "Ethernet" -ComponentID ms_tcpip6
 ```
 
-Correct the underlying DNS configuration so the client can consistently resolve Active Directory records without disabling IPv6.
-
-### Step 9 — Inspect the domain-joining log
-
-**Machine:** Affected Windows client
-
-**Terminal:** PowerShell, run as Administrator
+After re-enabling the IPv6 binding on the **affected Windows client** in **PowerShell as Administrator**, verify the state and DNS configuration:
 
 ```powershell
-Get-Content "C:\Windows\debug\NetSetup.log" -Tail 60
+Get-NetAdapterBinding -Name "Ethernet" -ComponentID ms_tcpip6
+Get-DnsClientServerAddress -InterfaceAlias "Ethernet"
+Resolve-DnsName -Name "_ldap._tcp.dc._msdcs.jobskillshare.org" -Type SRV
+nltest /dsgetdc:jobskillshare.org /force
 ```
 
-Look for the most recent domain-joining attempt and any relevant error codes.
+If resolver failures return, investigate the router's IPv6 DNS advertising or DHCP settings and provide Active Directory-aware DNS through the appropriate configuration. **The permanent fix and restoration test remain unverified in this original lab.**
 
 ### Step 10 — Verify the domain join
 
@@ -173,6 +193,24 @@ echo %USERNAME%
 ```
 
 Verify that the output identifies the intended domain and user rather than the local computer account.
+
+## Additional DC diagnostics (if direct DNS queries fail)
+
+**Machine: DC — PowerShell as Administrator**
+
+```powershell
+Get-DnsServerZone | Format-Table ZoneName,ZoneType,IsDsIntegrated
+Get-DnsServerResourceRecord -ZoneName "_msdcs.jobskillshare.org" -Name "_ldap._tcp.dc" -RRType SRV
+```
+
+**Machine: DC — Command Prompt as Administrator**
+
+```cmd
+dcdiag /test:dns /v
+sc query netlogon
+```
+
+These commands inspect the zones, locator record, registration checks, and Netlogon. Avoid recreating zones or reinstalling AD before diagnosing the evidence.
 
 ## Preventive Improvements
 
