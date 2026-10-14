@@ -66,3 +66,12 @@ This environment will support additional hands-on work in user administration, G
 Each lab will document its objective, environment, configuration, validation, troubleshooting, resolution, and lessons learned. Commands will identify the machine and terminal in which they were executed.
 
 All findings will be based on actual lab observations and verified results.
+
+## Explore the lab
+
+- [Lab 01 — Windows Active Directory environment](labs/01-active-directory-environment/README.md): configuration, verification, lessons learned, and limitations.
+- [Domain-join troubleshooting runbook](runbooks/active-directory-domain-join.md): commands labeled by machine and terminal.
+- [Screenshot evidence](labs/01-active-directory-environment/screenshots/README.md): real diagnostic and verification screenshots.
+- [Logical architecture](architecture/lab-01-architecture.md): DC, clients, and DNS relationships.
+
+> **Status:** Domain sign-ins were verified. Permanent IPv6/DNS configuration, stable DC addressing, and least-privilege helpdesk delegation remain future improvements. Disabling the IPv6 binding was a temporary workaround.
