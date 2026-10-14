@@ -17,3 +17,25 @@ These images document the original VirtualBox Active Directory lab. They are **h
 | [11-admin-domain-login.png](11-admin-domain-login.png) | DC: renamed jss\admin verified |
 
 **Notes:** The IPv6 binding change was a temporary diagnostic workaround, not a recommended permanent fix. Never upload passwords, keys, VM disk images, or ISO files.
+
+## Selected image previews
+
+### Infrastructure and computer objects
+
+![Domain Controller with AD DS and DNS](01-domain-controller.png)
+
+![Domain-joined HELPDESK and STAFF computers](02-domain-joined-computers.png)
+
+### Verified client logons
+
+![Helpdesk account identity](03-helpdesk-domain-login.png)
+
+![Staff account identity](04-staff-domain-login.png)
+
+### DNS failure and recovery
+
+![Initial client DNS failure](05-dns-client-failure.png)
+
+![Successful SRV lookup and DC discovery](07-dc-discovery-success.png)
+
+[Back to Lab 01](../README.md) | [Domain-join runbook](../../../runbooks/active-directory-domain-join.md)
