@@ -25,6 +25,27 @@ Build a virtualized Windows IT environment to practice centralized user manageme
 
 **NetBIOS domain:** `JSS`
 
+## Navigation and evidence
+
+- [Domain-join troubleshooting runbook](../../runbooks/active-directory-domain-join.md)
+- [Screenshot gallery](screenshots/README.md)
+- [Lab architecture](../../architecture/lab-01-architecture.md)
+- [Main repository README](../../README.md)
+
+### Verified computer objects
+
+![HELPDESK and STAFF computer objects](screenshots/02-domain-joined-computers.png)
+
+### Domain logon verification
+
+![Helpdesk domain identity](screenshots/03-helpdesk-domain-login.png)
+
+![Staff domain identity](screenshots/04-staff-domain-login.png)
+
+### Recovered DC discovery
+
+![Successful DC locator test](screenshots/07-dc-discovery-success.png)
+
 ## Implementation
 
 ### 1. Virtual Machine Setup
@@ -93,3 +114,11 @@ The Helpdesk account was assigned Domain Admin membership during the initial lab
 - Implement least-privilege Helpdesk administration.
 - Practice Group Policy and organizational unit management.
 - Extend the lab with additional users, workstations, and support scenarios.
+
+## Open operational improvements
+
+- The workaround involved disabling IPv6 on a client network adapter; restoration and a permanent AD-aware DNS configuration have not been independently verified.
+- The DC originally received its address through DHCP. Stable addressing remains a follow-up.
+- The Helpdesk account has Domain Admin membership; future labs should implement least-privilege delegation.
+- Verify distinct identities for cloned Windows workstations. Cloning a domain controller has additional requirements and is not a backup strategy.
+- Windows evaluation licensing was shown expired on some client screenshots; address this for future labs.
